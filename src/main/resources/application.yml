@@ -1,1 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:~/h2/coumon
+    driver-class-name: org.h2.Driver
+    username: jy
+    password: 1234
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
 

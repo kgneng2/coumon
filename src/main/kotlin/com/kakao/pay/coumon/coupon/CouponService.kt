@@ -27,8 +27,9 @@ class CouponService {
     }
 
 
-    @Scheduled
+    @Scheduled(cron = "0 10 * * *")
     fun notifyExpired() {
+
 
 
     }
