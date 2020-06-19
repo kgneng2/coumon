@@ -17,20 +17,29 @@ repositories {
 }
 
 dependencies {
+    implementation("io.github.microutils:kotlin-logging:1.7.10")
     implementation("com.h2database:h2")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+
+    testImplementation("io.rest-assured:json-path:4.2.0")
+    testImplementation("io.rest-assured:rest-assured:4.2.0")
+    testImplementation("junit:junit:4.12")
+    testImplementation("io.rest-assured:kotlin-extensions:4.2.0")
+    testImplementation("io.rest-assured:xml-path:4.2.0")
+
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+//tasks.withType<Test> {
+//    useJUnitPlatform()
+//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

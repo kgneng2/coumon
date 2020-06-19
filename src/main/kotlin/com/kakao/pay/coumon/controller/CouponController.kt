@@ -2,6 +2,7 @@ package com.kakao.pay.coumon.controller
 
 import com.kakao.pay.coumon.coupon.Coupon
 import com.kakao.pay.coumon.coupon.CouponService
+import com.kakao.pay.coumon.exception.InvalidRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -13,41 +14,49 @@ class CouponController {
     @Autowired
     private lateinit var couponService: CouponService
 
-    @PostMapping("/create")
+    //1
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun random(@RequestBody counts: Map<String, Int>) {
+    fun create(@RequestBody counts: Map<String, Int>) {
         val count = counts["count"]
 
-        return couponService.create(count)
+        if (count == null) {
+            throw InvalidRequestException("count is null")
+        } else {
+            couponService.create(count)
+        }
     }
 
+    //2
     @GetMapping
     fun getCoupon() {
 
         return couponService.get()
     }
 
-    @GetMapping("/user/{userId}")
-    fun getList(@PathVariable("userId") userId : String ) : List<Coupon> {
-        return couponService.getList(userId)
+    //3
+    @GetMapping("/user/{customerId}")
+    fun getList(@PathVariable("customerId") customerId: String): List<Coupon> {
+        return couponService.getList(customerId)
     }
 
-    @PutMapping("/{couponId}")
-    fun use(@PathVariable("couponId") couponId : String) {
-        //NOTE : 재사용 불가
-        return couponService.use(couponId)
+    //4
+    @PutMapping("/{couponNumber}")
+    fun use(@PathVariable("couponNumber") couponNumber: String): Coupon {
+        return couponService.use(couponNumber)
     }
 
-    @DeleteMapping("/{couponId}")
-    fun cancel(@PathVariable("couponId") couponId : String) {
-        //NOTE : 재사용 불가
-        return couponService.cancel(couponId)
+    //5
+    @DeleteMapping("/{couponNumber}")
+    fun cancel(@PathVariable("couponNumber") couponNumber: String): Coupon {
+        return couponService.cancel(couponNumber)
     }
 
 
+    //6
     @GetMapping("/expiration")
-    fun getExpiredCouponList() : List<Coupon> {
-        TODO("Pagination ")
+    fun getExpiredCouponList(): List<Coupon> {
+        return couponService.expiredToday()
     }
 
 }
