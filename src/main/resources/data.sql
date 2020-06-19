@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS billionaires;
+DROP TABLE IF EXISTS coupons;
 
-CREATE TABLE billionaires (
+CREATE TABLE coupons (
   id INT AUTO_INCREMENT  PRIMARY KEY,
   first_name VARCHAR(250) NOT NULL,
   last_name VARCHAR(250) NOT NULL,

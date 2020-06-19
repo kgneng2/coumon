@@ -1,12 +1,22 @@
 package com.kakao.pay.coumon.coupon
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 @Service
 class CouponService {
 
+    @Autowired
+    lateinit var couponRepository: CouponRepository
+
+    val couponFormat = ""
+
     fun create(count: Int?) {
+
+
+
+
         TODO("랜덤한 쿠폰 N개 생성하기")
     }
 
@@ -29,9 +39,9 @@ class CouponService {
 
     @Scheduled(cron = "0 10 * * *")
     fun notifyExpired() {
+        val expired =  couponRepository.findExpiredCoupon()
 
-
-
+        println("쿠폰이 3일 후 만료됩니다." + expired)
     }
 
 }
