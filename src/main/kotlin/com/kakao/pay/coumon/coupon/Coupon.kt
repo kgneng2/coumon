@@ -34,5 +34,5 @@ data class Coupon(
         @get:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "UTC+9")
         val updatedAt: LocalDateTime? = null,
         @get:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC+9")
-        val expiredAt : LocalDate = LocalDate.now().plusDays(90L)
+        var expiredAt : LocalDate = LocalDate.now().plusDays(90L)
 )

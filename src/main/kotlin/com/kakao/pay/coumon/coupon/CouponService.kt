@@ -1,5 +1,6 @@
 package com.kakao.pay.coumon.coupon
 
+import com.kakao.pay.coumon.exception.InternalServerException
 import com.kakao.pay.coumon.exception.InvalidRequestException
 import com.kakao.pay.coumon.exception.NotFoundException
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,8 +26,16 @@ class CouponService {
         couponRepository.saveAll(list)
     }
 
-    fun get() {
-        TODO("//output : 쿠폰번호(XXXXX-XXXXXX-XXXXXXXX)")
+    fun assign(customerId : Long): Coupon {
+        val coupon = couponRepository.findFirstByCustomerIdAndDelFlagAndUsed()
+        if(coupon == null) {
+            throw InternalServerException("No coupon available")
+        } else {
+            coupon.customerId = customerId
+            coupon.expiredAt = LocalDate.now().plusDays(90L)
+
+            return coupon
+        }
     }
 
     fun getList(customerId: String): List<Coupon> {

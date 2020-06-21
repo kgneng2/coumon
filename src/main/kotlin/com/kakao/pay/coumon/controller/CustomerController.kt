@@ -1,7 +1,6 @@
 package com.kakao.pay.coumon.controller
 
 import com.kakao.pay.coumon.authentication.ApiToken
-import com.kakao.pay.coumon.authentication.JwtComponent
 import com.kakao.pay.coumon.customer.Customer
 import com.kakao.pay.coumon.customer.CustomerService
 import com.kakao.pay.coumon.exception.InvalidRequestException
@@ -33,8 +32,6 @@ class CustomerController {
             throw InvalidRequestException("customerId must be null")
         }
 
-        return customerService.check(request)
+        return customerService.login(request)
     }
-
-
 }

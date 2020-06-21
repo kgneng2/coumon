@@ -1,9 +1,8 @@
 package com.kakao.pay.coumon.customer
 
 import com.kakao.pay.coumon.authentication.ApiToken
-import com.kakao.pay.coumon.authentication.JwtComponent
+import com.kakao.pay.coumon.authentication.JwtService
 import com.kakao.pay.coumon.exception.InvalidRequestException
-import com.kakao.pay.coumon.exception.LoginException
 import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,30 +16,34 @@ class CustomerService {
     @Autowired
     private lateinit var customerRepository: CustomerRepository
 
+    @Autowired
+    private lateinit var jwtService: JwtService
+
     fun create(newCustomer: Customer): Customer {
         if (customerRepository.existsByLoginId(newCustomer.loginId)) {
             throw InvalidRequestException("duplicated loginId")
         } else {
             newCustomer.password = encryptPassword(newCustomer.password)
-
             val customer = customerRepository.save(newCustomer)
-
-            println(JwtComponent.generateApiToken(customer))
+            println(jwtService.generateApiToken(customer))
 
             return customer
         }
     }
 
-    fun check(loginCustomer: Customer): ApiToken {
+    fun login(loginCustomer: Customer): ApiToken {
         loginCustomer.password = encryptPassword(loginCustomer.password)
-
-        val customer = customerRepository
-                .findByLoginIdAndPassword(loginCustomer.loginId, loginCustomer.password)
-                ?: throw LoginException()
+        val customer = confirm(loginCustomer.loginId, loginCustomer.password)
 
         log.info("success check customer info :$customer")
 
-        return JwtComponent.generateApiToken(customer)
+        return jwtService.generateApiToken(customer)
+    }
+
+    fun confirm(loginId : String, password :String): Customer {
+        return customerRepository
+                .findByLoginIdAndPassword(loginId, password)
+                ?: throw InvalidRequestException("ID or PASSWORD is wrong")
     }
 
     private fun encryptPassword(password: String): String {

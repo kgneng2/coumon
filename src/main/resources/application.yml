@@ -10,3 +10,6 @@ spring:
   h2:
     console:
       enabled: true
+
+secret:
+  key: "coumon@secret@key@1234"

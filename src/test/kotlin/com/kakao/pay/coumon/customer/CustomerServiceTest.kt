@@ -1,7 +1,6 @@
 package com.kakao.pay.coumon.customer
 
 import com.kakao.pay.coumon.exception.InvalidRequestException
-import com.kakao.pay.coumon.exception.LoginException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,7 +37,7 @@ class CustomerServiceTest {
     }
 
 
-    @Test(expected = LoginException::class)
+    @Test(expected = InvalidRequestException::class)
     @Transactional
     fun idPasswordWrongTest() {
         customerService.create(Customer(
@@ -48,7 +47,7 @@ class CustomerServiceTest {
                 createdAt = null
         ))
 
-        customerService.check(Customer(
+        customerService.login(Customer(
                 customerId = null,
                 loginId = "kgneng2",
                 password = "12345678",

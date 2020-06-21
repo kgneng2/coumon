@@ -43,6 +43,16 @@ class ProblemExceptionHandler {
                 .body(ex.createErrorResponse(code))
     }
 
+    @ExceptionHandler(AuthenticationException::class)
+    fun authenticationException(ex: AuthenticationException): ResponseEntity<CoumonErrorResponse> {
+        log.error(ex.message, ex.cause)
+        val code = 401
+        return ResponseEntity
+                .status(code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ex.createErrorResponse(code))
+    }
+
     private fun CoumonException.createErrorResponse(code : Int) =
             CoumonErrorResponse(this::class.java.simpleName,
                     message = this.localizedMessage,

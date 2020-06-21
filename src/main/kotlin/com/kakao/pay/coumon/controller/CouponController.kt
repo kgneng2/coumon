@@ -1,5 +1,6 @@
 package com.kakao.pay.coumon.controller
 
+import com.kakao.pay.coumon.authentication.JwtService
 import com.kakao.pay.coumon.coupon.Coupon
 import com.kakao.pay.coumon.coupon.CouponService
 import com.kakao.pay.coumon.exception.InvalidRequestException
@@ -14,6 +15,9 @@ class CouponController {
     @Autowired
     private lateinit var couponService: CouponService
 
+    @Autowired
+    private lateinit var jwtService: JwtService
+
     //1
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -25,13 +29,16 @@ class CouponController {
         } else {
             couponService.create(count)
         }
+        //Insert admin user
     }
 
     //2
     @GetMapping
-    fun getCoupon() {
+    fun getCoupon(@RequestHeader("Authorization") header: String): Coupon {
+        val token = jwtService.getTokenFromHeader(header)
+        val payload = jwtService.getPayload(token)
 
-        return couponService.get()
+        return couponService.assign(payload["customerId"] as Long)
     }
 
     //3
