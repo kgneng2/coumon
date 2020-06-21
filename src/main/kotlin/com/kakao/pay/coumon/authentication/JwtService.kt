@@ -2,10 +2,10 @@ package com.kakao.pay.coumon.authentication
 
 import com.auth0.jwt.JWTSigner
 import com.auth0.jwt.JWTVerifier
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kakao.pay.coumon.customer.Customer
 import com.kakao.pay.coumon.customer.CustomerService
 import com.kakao.pay.coumon.exception.AuthenticationException
+import com.kakao.pay.coumon.util.getMapper
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -24,8 +24,6 @@ class JwtService {
 
     private val DEFAULT_EXPIRY_SECONDS = 600 //10분
 
-    private val mapper = jacksonObjectMapper()
-
     fun generateApiToken(customer: Customer): ApiToken {
         val payload = JwtPayload(customer.loginId,
                 customer.password,
@@ -36,7 +34,7 @@ class JwtService {
     }
 
     private fun jwtSign(jwtPayload: JwtPayload, expirySecond: Int): String {
-        val claims = mapper.convertValue(jwtPayload, Map::class.java).toMutableMap()
+        val claims = getMapper().convertValue(jwtPayload, Map::class.java).toMutableMap()
         val options = JWTSigner.Options()
                 .setJwtId(true)
                 .setIssuedAt(true)

@@ -14,6 +14,10 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
+    maven {
+        setUrl("https://raw.github.com/bulldog2011/bulldog-repo/master/repo/releases/")
+    }
+
 }
 
 dependencies {
@@ -26,6 +30,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("commons-codec:commons-codec:1.14")
     implementation("com.auth0:java-jwt:2.1.0")
+    implementation("com.leansoft:bigqueue:0.7.3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
