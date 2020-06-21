@@ -19,7 +19,6 @@ class JwtRequestInterceptor : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val header = request.getHeader("Authorization")
         val token = jwtService.getTokenFromHeader(header)
-        log.info("token1: $token")
         return jwtService.verify(token)
     }
 }
