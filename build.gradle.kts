@@ -35,13 +35,9 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:4.2.0")
     testImplementation("junit:junit:4.12")
     testImplementation("io.rest-assured:kotlin-extensions:4.2.0")
+    testImplementation("io.rest-assured:json-schema-validator:4.3.0")
     testImplementation("io.rest-assured:xml-path:4.2.0")
-
 }
-
-//tasks.withType<Test> {
-//    useJUnitPlatform()
-//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

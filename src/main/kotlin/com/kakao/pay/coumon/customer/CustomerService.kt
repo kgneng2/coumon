@@ -23,30 +23,27 @@ class CustomerService {
         if (customerRepository.existsByLoginId(newCustomer.loginId)) {
             throw InvalidRequestException("duplicated loginId")
         } else {
-            newCustomer.password = encryptPassword(newCustomer.password)
-            val customer = customerRepository.save(newCustomer)
-            println(jwtService.generateApiToken(customer))
+            val encryptedUser = newCustomer.copy(password = encryptPassword(newCustomer.password))
 
-            return customer
+            return customerRepository.save(encryptedUser)
         }
     }
 
     fun login(loginCustomer: Customer): ApiToken {
-        loginCustomer.password = encryptPassword(loginCustomer.password)
-        val customer = confirm(loginCustomer.loginId, loginCustomer.password)
-
+        val customer = confirm(loginCustomer.loginId, encryptPassword(loginCustomer.password))
         log.info("success check customer info :$customer")
 
         return jwtService.generateApiToken(customer)
     }
 
-    fun confirm(loginId : String, password :String): Customer {
+    fun confirm(loginId : String, encryptedPassword :String): Customer {
+        log.info("loginId : $loginId, password : $encryptedPassword")
         return customerRepository
-                .findByLoginIdAndPassword(loginId, password)
+                .findByLoginIdAndPassword(loginId, encryptedPassword)
                 ?: throw InvalidRequestException("ID or PASSWORD is wrong")
     }
 
-    private fun encryptPassword(password: String): String {
+    fun encryptPassword(password: String): String {
         return DigestUtils.sha256Hex(password)
     }
 

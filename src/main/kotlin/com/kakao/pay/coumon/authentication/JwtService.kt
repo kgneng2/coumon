@@ -22,14 +22,13 @@ class JwtService {
     @Autowired
     private lateinit var customerService: CustomerService
 
-    private val DEFAULT_EXPIRY_SECONDS = 600
-    //    private val DEFAULT_EXPIRY_SECONDS = 604800 // 7일
+    private val DEFAULT_EXPIRY_SECONDS = 600 //10분
 
     private val mapper = jacksonObjectMapper()
 
     fun generateApiToken(customer: Customer): ApiToken {
-
         val payload = JwtPayload(customer.loginId,
+                customer.password,
                 customer.customerId ?: throw InternalException("customer Id is null"),
                 "user") // user 로 한정한다.
 
@@ -46,24 +45,24 @@ class JwtService {
         return jwtSigner.sign(claims as MutableMap<String, Any>?, options)
     }
 
-    @Throws(Exception::class)
     fun getPayload(token: String): MutableMap<String, Any> {
         return jwtVerifier.verify(token)
     }
 
-    fun getTokenFromHeader(header: String): String {
-        if(header.contains("Bearer")) {
-            return header.split(" ")[1]
+    fun getTokenFromHeader(header: String?): String {
+        if (header == null || !header.contains("Bearer")) {
+            throw AuthenticationException("Authorization : Bearer is invalid")
         } else {
-            throw AuthenticationException("Authorization : Bearer token")
+            return header.split(" ")[1]
         }
     }
 
-    fun verify(token: String) {
+    fun verify(token: String): Boolean {
         try {
             val jwtPayload = getPayload(token)
             customerService.confirm(jwtPayload["loginId"] as String, jwtPayload["password"] as String)
 
+            return true
         } catch (e: Exception) {
             throw AuthenticationException(e.toString(), e)
         }

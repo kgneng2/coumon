@@ -7,9 +7,9 @@ import com.kakao.pay.coumon.exception.InvalidRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/coupon")
 class CouponController {
 
     @Autowired
@@ -18,8 +18,8 @@ class CouponController {
     @Autowired
     private lateinit var jwtService: JwtService
 
-    //1
-    @PostMapping
+    //1 쿠폰 생성시 인증 pass
+    @PostMapping("/admin/api/coupon")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody counts: Map<String, Int>) {
         val count = counts["count"]
@@ -29,41 +29,52 @@ class CouponController {
         } else {
             couponService.create(count)
         }
-        //Insert admin user
     }
 
     //2
-    @GetMapping
-    fun getCoupon(@RequestHeader("Authorization") header: String): Coupon {
+    @GetMapping("/api/coupon")
+    fun getCoupon(@RequestHeader("Authorization") header: String?): Coupon {
         val token = jwtService.getTokenFromHeader(header)
         val payload = jwtService.getPayload(token)
 
-        return couponService.assign(payload["customerId"] as Long)
+        return couponService.assign((payload["customerId"] as Int).toLong())
     }
 
     //3
-    @GetMapping("/user/{customerId}")
-    fun getList(@PathVariable("customerId") customerId: String): List<Coupon> {
-        return couponService.getList(customerId)
+    @GetMapping("/api/coupon/user/{customerId}")
+    fun getList(@RequestHeader("Authorization") header: String?,
+                @PathVariable("customerId") customerId: String): List<Coupon> {
+        val token = jwtService.getTokenFromHeader(header)
+        val payload = jwtService.getPayload(token)
+
+        return couponService.getList((payload["customerId"] as Int).toLong())
     }
 
     //4
-    @PutMapping("/{couponNumber}")
-    fun use(@PathVariable("couponNumber") couponNumber: String): Coupon {
-        return couponService.use(couponNumber)
+    @PutMapping("/api/coupon/{couponNumber}")
+    fun use(@RequestHeader("Authorization") header: String?,
+            @PathVariable("couponNumber") couponNumber: String): Coupon {
+        val token = jwtService.getTokenFromHeader(header)
+        val payload = jwtService.getPayload(token)
+
+        return couponService.use(couponNumber, (payload["customerId"] as Int).toLong())
     }
 
     //5
-    @DeleteMapping("/{couponNumber}")
-    fun cancel(@PathVariable("couponNumber") couponNumber: String): Coupon {
-        return couponService.cancel(couponNumber)
+    @DeleteMapping("/api/coupon/{couponNumber}")
+    fun cancel(
+            @RequestHeader("Authorization") header: String?,
+            @PathVariable("couponNumber") couponNumber: String): Coupon {
+        val token = jwtService.getTokenFromHeader(header)
+        val payload = jwtService.getPayload(token)
+
+        return couponService.cancel(couponNumber, (payload["customerId"] as Int).toLong())
     }
 
-
-    //6
-    @GetMapping("/expiration")
+    //6 전체 쿠폰 목록이라, 인증 pass
+    @GetMapping("/admin/api/coupon/expiration")
     fun getExpiredCouponList(): List<Coupon> {
-        return couponService.expiredToday()
+        return couponService.expiredByDate(LocalDate.now())
     }
 
 }

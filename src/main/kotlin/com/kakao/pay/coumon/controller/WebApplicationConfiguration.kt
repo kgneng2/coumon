@@ -1,21 +1,21 @@
 package com.kakao.pay.coumon.controller
 
-import com.kakao.pay.coumon.filter.JwtRequestFilter
+import com.kakao.pay.coumon.interceptor.JwtRequestInterceptor
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.web.servlet.FilterRegistrationBean
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+
 
 @Configuration
-class WebApplicationConfiguration {
+class WebApplicationConfiguration : WebMvcConfigurer {
 
     @Autowired
-    private lateinit var jwtRequestFilter: JwtRequestFilter
+    private lateinit var jwtRequestInterceptor: JwtRequestInterceptor
 
-    @Bean
-    fun jwtFilter(): FilterRegistrationBean<*> {
-        val registrationBean = FilterRegistrationBean(jwtRequestFilter)
-        registrationBean.order = 1
-        return registrationBean
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(jwtRequestInterceptor)
+                .addPathPatterns("/api/coupon/**")
+                .excludePathPatterns("/api/customer/**", "/admin/api/**")
     }
 }

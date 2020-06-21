@@ -3,11 +3,15 @@ package com.kakao.pay.coumon.coupon
 import com.kakao.pay.coumon.exception.InternalServerException
 import com.kakao.pay.coumon.exception.InvalidRequestException
 import com.kakao.pay.coumon.exception.NotFoundException
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
+
+private val log = KotlinLogging.logger {  }
 
 @Service
 class CouponService {
@@ -26,9 +30,9 @@ class CouponService {
         couponRepository.saveAll(list)
     }
 
-    fun assign(customerId : Long): Coupon {
+    fun assign(customerId: Long): Coupon {
         val coupon = couponRepository.findFirstByCustomerIdAndDelFlagAndUsed()
-        if(coupon == null) {
+        if (coupon == null) {
             throw InternalServerException("No coupon available")
         } else {
             coupon.customerId = customerId
@@ -38,52 +42,55 @@ class CouponService {
         }
     }
 
-    fun getList(customerId: String): List<Coupon> {
-        return couponRepository.findByCustomerIdAndDelFlagOrderByUpdatedAt(customerId, false);
+    fun getList(customerId: Long): List<Coupon> {
+        return couponRepository.findByCustomerIdAndDelFlagOrderByExpiredAtDesc(customerId, false)
     }
 
-    fun use(id: String): Coupon {
-        //TODO: customerId도 확인해서 소유중인 쿠폰인지 확인하고 사용할것.
-        val coupon = findById(id)
+    fun use(id: String, customerId: Long): Coupon {
+        val coupon = findCouponWithOwner(id, customerId)
 
         if (coupon.used) {
-            //재사용 불가
             throw InvalidRequestException("$id is used")
         } else {
-            coupon.used = true
-            return couponRepository.save(coupon)
+            val copy = coupon.copy(used = true)
+            return couponRepository.save(copy)
         }
     }
 
-    fun cancel(id: String): Coupon {
-        val coupon = findById(id)
+    fun cancel(id: String, customerId: Long): Coupon {
+        val coupon = findCouponWithOwner(id, customerId)
 
         if (coupon.used) {
-            coupon.used = false
-            return couponRepository.save(coupon)
+            val copy = coupon.copy(used = false)
+            return couponRepository.save(copy)
         } else {
-            //굳이(?)사용가능한 쿠폰인데 취소를 할수 있나?
             throw InvalidRequestException("$id is unused")
         }
     }
 
-    private fun findById(couponNumber: String): Coupon {
-        return couponRepository.findById(couponNumber).orElse(null)
-                ?: throw NotFoundException("$couponNumber is not existed")
+    private fun findCouponWithOwner(couponNumber: String, customerId: Long): Coupon {
+        return couponRepository.findByIdAndCustomerIdAndDelFlagOrderByExpiredAtDesc(
+                UUID.fromString(couponNumber),
+                customerId,
+                false) ?: throw NotFoundException("There is no customer($customerId)'s coupon $couponNumber(coupon number)")
     }
 
-
-    fun expiredToday(): List<Coupon> {
-        return couponRepository.findByExpiredAtAndDelFlagAndUsed(LocalDate.now(), delFlag = false, used = false)
+    fun expiredByDate(date : LocalDate): List<Coupon> {
+        return couponRepository.findByExpiredAtAndDelFlagAndUsed(
+                date = date,
+                delFlag = false,
+                used = false)
     }
 
-
-    //7
+    //7 매10시에 만료 3일전 쿠폰을 확인한다.
     @Scheduled(cron = "0 10 * * *")
-    fun notifyExpired() {
-//        val expired =  couponRepository.findExpiredCoupon()
+    fun notifyExpiredBefore3days() {
+        val expiredCoupons = expiredByDate(LocalDate.now().minusDays(3))
 
-//        println("쿠폰이 3일 후 만료됩니다." + expired)/**/
+        expiredCoupons.groupBy { coupon: Coupon -> coupon.customerId }
+                .forEach { (k,v) ->
+                    val couponIdList = v.map { it.id }
+                    log.info("$k 의 쿠폰이 3일후 만료 됩니다 $couponIdList")
+                }
     }
-
 }

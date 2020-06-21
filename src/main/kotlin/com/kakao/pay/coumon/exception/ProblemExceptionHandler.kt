@@ -53,7 +53,7 @@ class ProblemExceptionHandler {
                 .body(ex.createErrorResponse(code))
     }
 
-    private fun CoumonException.createErrorResponse(code : Int) =
+    private fun CoumonException.createErrorResponse(code: Int) =
             CoumonErrorResponse(this::class.java.simpleName,
                     message = this.localizedMessage,
                     code = code,
