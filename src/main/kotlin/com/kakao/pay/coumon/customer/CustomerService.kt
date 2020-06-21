@@ -3,7 +3,7 @@ package com.kakao.pay.coumon.customer
 import com.kakao.pay.coumon.authentication.ApiToken
 import com.kakao.pay.coumon.authentication.JwtComponent
 import com.kakao.pay.coumon.exception.InvalidRequestException
-import com.kakao.pay.coumon.exception.NotFoundException
+import com.kakao.pay.coumon.exception.LoginException
 import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class CustomerService {
         if (customerRepository.existsByLoginId(newCustomer.loginId)) {
             throw InvalidRequestException("duplicated loginId")
         } else {
-            newCustomer.password = sha256Hex(newCustomer.password)
+            newCustomer.password = encryptPassword(newCustomer.password)
 
             val customer = customerRepository.save(newCustomer)
 
@@ -32,18 +32,18 @@ class CustomerService {
     }
 
     fun check(loginCustomer: Customer): ApiToken {
-        loginCustomer.password = sha256Hex(loginCustomer.password)
+        loginCustomer.password = encryptPassword(loginCustomer.password)
 
         val customer = customerRepository
                 .findByLoginIdAndPassword(loginCustomer.loginId, loginCustomer.password)
-                ?: throw NotFoundException("no user")
+                ?: throw LoginException()
 
         log.info("success check customer info :$customer")
 
         return JwtComponent.generateApiToken(customer)
     }
 
-    private fun sha256Hex(password: String): String {
+    private fun encryptPassword(password: String): String {
         return DigestUtils.sha256Hex(password)
     }
 
