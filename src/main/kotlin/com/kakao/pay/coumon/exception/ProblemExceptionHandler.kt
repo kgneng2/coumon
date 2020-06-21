@@ -22,6 +22,27 @@ class ProblemExceptionHandler {
                 .body(ex.createErrorResponse(code))
     }
 
+
+    @ExceptionHandler(NotFoundException::class)
+    fun notFoundExceptionError(ex: NotFoundException): ResponseEntity<CoumonErrorResponse> {
+        log.error(ex.message, ex.cause)
+        val code = 404
+        return ResponseEntity
+                .status(code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ex.createErrorResponse(code))
+    }
+
+    @ExceptionHandler(InternalServerException::class)
+    fun notFoundExceptionError(ex: InternalServerException): ResponseEntity<CoumonErrorResponse> {
+        log.error(ex.message, ex.cause)
+        val code = 500
+        return ResponseEntity
+                .status(code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ex.createErrorResponse(code))
+    }
+
     private fun CoumonException.createErrorResponse(code : Int) =
             CoumonErrorResponse(this::class.java.simpleName,
                     message = this.localizedMessage,

@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 class InvalidRequestException(message: String? = "Invalid Request", cause: Throwable? = null) : CoumonException(message, cause)
 class NotFoundException(message: String? = "NotFound Request", cause: Throwable? = null) : CoumonException(message, cause)
-
+class InternalServerException(message: String? = "Internal Server Error", cause: Throwable? = null) : CoumonException(message, cause)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
