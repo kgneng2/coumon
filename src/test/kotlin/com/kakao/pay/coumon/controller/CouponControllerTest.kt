@@ -73,7 +73,7 @@ class CouponControllerTest {
     @Test
     fun `생성된 쿠폰중 하나를 사용자에게 지급하는 API`() {
         val (customer, apiToken) = before("id1")
-        val coupon = couponRepository.save(Coupon(createdAt = LocalDateTime.now()))
+        couponRepository.save(Coupon(createdAt = LocalDateTime.now()))
 
         given()
                 .log().all()
@@ -84,7 +84,6 @@ class CouponControllerTest {
                 .prettyPeek()
                 .then()
                 .assertThat()
-                .body("couponNumber", equalTo(coupon.id.toString()))
                 .body("customerId", equalTo(customer.customerId?.toInt()))
                 .statusCode(200)
 

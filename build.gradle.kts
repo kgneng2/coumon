@@ -31,11 +31,12 @@ dependencies {
     implementation("commons-codec:commons-codec:1.14")
     implementation("com.auth0:java-jwt:2.1.0")
     implementation("com.leansoft:bigqueue:0.7.3")
+    implementation("commons-fileupload:commons-fileupload:1.4")
+    implementation("org.apache.commons:commons-csv:1.8")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-
     testImplementation("io.rest-assured:json-path:4.2.0")
     testImplementation("io.rest-assured:rest-assured:4.2.0")
     testImplementation("junit:junit:4.12")

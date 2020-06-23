@@ -3,6 +3,7 @@ package com.kakao.pay.coumon.coupon
 import com.kakao.pay.coumon.exception.InternalServerException
 import com.kakao.pay.coumon.exception.InvalidRequestException
 import com.kakao.pay.coumon.exception.NotFoundException
+import com.kakao.pay.coumon.util.CsvUtil
 import com.kakao.pay.coumon.util.getMapper
 import com.kakao.pay.coumon.util.toJsonAsBytes
 import com.leansoft.bigqueue.BigQueueImpl
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
+import java.io.InputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -59,6 +62,7 @@ class CouponService {
         } else {
             coupon.customerId = customerId
             coupon.expiredAt = LocalDate.now().plusDays(90L)
+            couponRepository.save(coupon)
 
             return coupon
         }
@@ -115,6 +119,7 @@ class CouponService {
                     val couponIdList = v.map { it.id }
                     log.info("$k 의 쿠폰이 3일후 만료 됩니다 $couponIdList")
                 }
+
     }
 
     @Throws(IOException::class)
@@ -152,5 +157,12 @@ class CouponService {
         queue.flush()
         queue.gc()
         queue.close()
+    }
+
+    fun uploadCsv(stream: InputStream) {
+        val couponIterator = CsvUtil.csvToCoupons(stream)
+        for (item in couponIterator) {
+            queue.enqueue(item.toJsonAsBytes())
+        }
     }
 }

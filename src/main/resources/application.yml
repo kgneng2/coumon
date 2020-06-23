@@ -12,8 +12,15 @@ spring:
   h2:
     console:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+      enabled: false
 
 secret:
   key: "coumon@secret@key@1234"
 
 big-queue.dir: /tmp/bigqueue
+
+

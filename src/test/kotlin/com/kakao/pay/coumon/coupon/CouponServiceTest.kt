@@ -1,16 +1,17 @@
-package com.kakao.pay.coumon.controller
+package com.kakao.pay.coumon.coupon
 
-import com.kakao.pay.coumon.coupon.Coupon
-import com.kakao.pay.coumon.coupon.CouponRepository
-import com.kakao.pay.coumon.coupon.CouponService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
+
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -63,4 +64,15 @@ class CouponServiceTest {
         //단순히 프린트라.. 프린트 되는지만 확인.
         couponService.notifyExpiredBefore3days()
     }
+
+
+
+//    @Test
+    fun `200만개 생성한 쿠폰을 db에 업로드 테스트`() {
+        val SAMPLE_CSV_FILE = "./coupon.csv"
+        val initialFile = File(SAMPLE_CSV_FILE)
+        val targetStream: InputStream = FileInputStream(initialFile)
+        couponService.uploadCsv(targetStream)
+    }
+
 }

@@ -3,11 +3,18 @@ package com.kakao.pay.coumon.controller
 import com.kakao.pay.coumon.authentication.JwtService
 import com.kakao.pay.coumon.coupon.Coupon
 import com.kakao.pay.coumon.coupon.CouponService
+import com.kakao.pay.coumon.exception.InternalServerException
 import com.kakao.pay.coumon.exception.InvalidRequestException
+import org.apache.tomcat.util.http.fileupload.FileItemIterator
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload
+import org.apache.tomcat.util.http.fileupload.util.Streams
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.io.InputStream
 import java.time.LocalDate
+import javax.servlet.http.HttpServletRequest
+
 
 @RestController
 class CouponController {
@@ -75,6 +82,25 @@ class CouponController {
     @GetMapping("/admin/api/coupon/expiration")
     fun getExpiredCouponList(): List<Coupon> {
         return couponService.expiredByDate(LocalDate.now())
+    }
+
+    @PostMapping("/api/coupon/upload")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun uploadCsv(request: HttpServletRequest) {
+        try {
+            val upload = ServletFileUpload()
+            val iterStream: FileItemIterator = upload.getItemIterator(request)
+
+            while (iterStream.hasNext()) {
+                val item = iterStream.next()
+                val stream: InputStream = item.openStream()
+                if (!item.isFormField) {
+                    couponService.uploadCsv(stream)
+                }
+            }
+        } catch (e : Exception) {
+            throw InternalServerException("csv upload error", e)
+        }
     }
 
 }
